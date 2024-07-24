@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generate Image</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #uploadForm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        #result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #generatedImage {
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload an Image to Generate a New Image</h1>
+    <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Generate Image</button>
+    </form>
+    <div id="result">
+        <h2>Generated Image:</h2>
+        <img id="generatedImage" src="" alt="Generated Image" style="display:none; width: 128px; height: 128px;"/>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            if (result.generated_image) {
+                const img = document.getElementById('generatedImage');
+                img.src = 'data:image/png;base64,' + result.generated_image;
+                img.style.display = 'block';
+            } else {
+                alert('Error: ' + result.error);
+            }
+        };
+    </script>
+</body>
+</html>
